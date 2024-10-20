@@ -7,11 +7,11 @@ import streamlit as st
 import os
 
 # Configuración y carga de datos
-def cargar_datos(file_path):
+def cargar_datos(file_path, delimiter=','):
     """
     Carga un archivo CSV en un DataFrame.
     """
-    return pd.read_csv(file_path)
+    return pd.read_csv(file_path, delimiter=delimiter)
 
 # Ruta del archivo (relativa)
 file_path_colombia = os.path.join(os.getcwd(), 'Org_Datos_Colombia.csv')
@@ -19,9 +19,6 @@ df_colombia = cargar_datos(file_path_colombia)
 
 # Identificación de género
 def determinar_genero(nombre, nombres_femeninos):
-    """
-    Determina el género basado en el primer nombre de una lista de nombres femeninos.
-    """
     primer_nombre = nombre.split()[0].upper()
     return 'Femenino' if primer_nombre in nombres_femeninos else 'Masculino'
 
@@ -41,9 +38,6 @@ df_colombia['GENERO_NUMERICO'] = np.where(df_colombia['GENERO'] == 'Femenino', 0
 # Función para convertir escala salarial
 SMLV = 1_300_000
 def convertir_smlv(escala, smlv=SMLV):
-    """
-    Convierte la escala salarial basada en el salario mínimo (SMLV).
-    """
     try:
         escala = escala.strip().upper()
         if re.match(r'^\d+\s*-\s*SMLV$', escala):
@@ -85,9 +79,6 @@ df_colombia = df_colombia[['NUMERO', 'NOMBRES Y APELLIDOS', 'GENERO', 'GENERO_NU
 
 # Análisis y agrupación de datos
 def calcular_estadisticas_genero(df):
-    """
-    Calcula estadísticas (promedio) de salario agrupado por género.
-    """
     return df.groupby('GENERO')['SALARIO_CALCULADO'].agg(promedio='mean').reset_index()
 
 # Calcular las estadísticas de salario por género
@@ -110,36 +101,32 @@ st.metric("Diferencia absoluta de salario (Hombres - Mujeres)", f"{diferencia_sa
 st.metric("Diferencia porcentual", f"{diferencia_porcentual:.2f}%")
 
 st.header("Correlograma Colombia:")
-# Visualización de la matriz de correlación
 def generar_correlograma(df, title):
-    """
-    Genera un correlograma para las columnas seleccionadas.
-    """
-    st.write("Columnas del DataFrame:", df.columns.tolist())  # Mostrar las columnas disponibles
+    st.write("Columnas del DataFrame:", df.columns.tolist())
     try:
         df_selected = df[['GENERO_NUMERICO', 'NIVEL EDUCACION ORDENADO', 'SALARIO_CALCULADO']]
     except KeyError as e:
-        st.error(f"Error: {str(e)}")  # Mostrar el error si las columnas no están
-        return  # Termina la función si hay un error
+        st.error(f"Error: {str(e)}")
+        return
 
     correlation_matrix = df_selected.corr()
     
-    plt.figure(figsize=(10, 6))  # Ajustar el tamaño del gráfico
+    plt.figure(figsize=(10, 6))
     sns.heatmap(correlation_matrix, annot=True, cmap='coolwarm', vmin=-1, vmax=1)
     plt.title(title)
     
-    st.pyplot(plt)  # Mostrar el gráfico en Streamlit
-    plt.clf()  # Limpiar la figura para evitar superposición en futuros gráficos
+    st.pyplot(plt)
+    plt.clf()
 
 # Generar correlograma
 generar_correlograma(df_colombia, 'Correlograma de Datos Completos')
 
 # Cargar otro archivo CSV
 file_path_espana = os.path.join(os.getcwd(), 'datos.csv')
-df_espana = cargar_datos(file_path_espana)
+df_espana = cargar_datos(file_path_espana, delimiter=';')  # Cambiar el delimitador a punto y coma
 
 # Verificar las columnas disponibles en df_espana
-st.write("Columnas en df_espana:", df_espana.columns.tolist())  # Mostrar las columnas disponibles
+st.write("Columnas en df_espana:", df_espana.columns.tolist())
 
 # Filtrar las filas donde 'Sexo/Brecha de género' no contenga "Cociente" y donde 'Tipo de jornada' no sea 'Total'
 if 'Sexo/Brecha de género' in df_espana.columns and 'Tipo de jornada' in df_espana.columns:
@@ -154,7 +141,7 @@ if 'Sexo/Brecha de género' in df_espana.columns and 'Tipo de jornada' in df_esp
     # Agrupar por 'Tipo de jornada' y 'Sexo/Brecha de género', y calcular el promedio de 'Total'
     promedio_total = df_filtered.groupby(['Tipo de jornada', 'Sexo/Brecha de género'])['Total'].mean().reset_index()
 
-    # Asignar valores numéricos al género (Mujeres = 0, Hombres = 1)
+    # Asignar valores numéricos al género
     promedio_total['GENERO_NUMERICO'] = np.where(promedio_total['Sexo/Brecha de género'] == 'Mujeres', 0, 1)
 
     # Mostrar resultados de España
@@ -163,9 +150,6 @@ if 'Sexo/Brecha de género' in df_espana.columns and 'Tipo de jornada' in df_esp
 
     # Cálculo de la diferencia salarial por jornada
     def calcular_diferencias_salariales(promedio_total):
-        """
-        Calcula la diferencia salarial entre hombres y mujeres en cada tipo de jornada.
-        """
         diferencias = []
 
         for jornada in promedio_total['Tipo de jornada'].unique():
@@ -195,20 +179,16 @@ if 'Sexo/Brecha de género' in df_espana.columns and 'Tipo de jornada' in df_esp
 
     st.header("Correlograma España:")
 
-    # Correlogramas
     def generar_correlograma_filtrado(df, title):
-        """
-        Genera un correlograma para el DataFrame filtrado.
-        """
         correlation_matrix = df.corr()
         plt.figure(figsize=(8, 6))
         sns.heatmap(correlation_matrix, annot=True, cmap='coolwarm', vmin=-1, vmax=1)
         plt.title(title)
         st.pyplot(plt)
-        plt.clf()  # Limpiar la figura
+        plt.clf()
 
     # Correlograma del DataFrame filtrado
-    st.write("Columnas del DataFrame filtrado:", df_filtered.columns.tolist())  # Mostrar columnas del DataFrame filtrado
+    st.write("Columnas del DataFrame filtrado:", df_filtered.columns.tolist())
     generar_correlograma_filtrado(df_filtered[['Total', 'GENERO_NUMERICO']], 'Correlograma de Datos Filtrados por Género')
 else:
     st.error("Las columnas 'Sexo/Brecha de género' o 'Tipo de jornada' no se encuentran en el DataFrame.")
