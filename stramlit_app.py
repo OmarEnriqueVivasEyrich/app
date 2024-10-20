@@ -177,7 +177,7 @@ if 'Sexo/Brecha de género' in df_espana.columns and 'Tipo de jornada' in df_esp
     diferencias_salariales = calcular_diferencias_salariales(promedio_total)
 
     # Mostrar los resultados en una tabla
-    st.subheader("Diferencias Salariales por Tipo de Jornada")
+    st.subheader("Diferencias Salariales por Tipo de Jornada xd")
     st.dataframe(diferencias_salariales)
 
     st.header("Correlograma España:")
