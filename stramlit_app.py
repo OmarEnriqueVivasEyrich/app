@@ -8,9 +8,6 @@ import os
 
 # Configuración y carga de datos
 def cargar_datos(file_path, delimiter=','):
-    """
-    Carga un archivo CSV en un DataFrame.
-    """
     return pd.read_csv(file_path, delimiter=delimiter)
 
 # Ruta del archivo (relativa)
@@ -138,11 +135,11 @@ if 'Sexo/Brecha de género' in df_espana.columns and 'Tipo de jornada' in df_esp
     # Limpiar la columna 'Total', reemplazar comas por puntos y convertir a numérico
     df_filtered['Total'] = pd.to_numeric(df_filtered['Total'].str.replace(',', '.'), errors='coerce')
 
+    # Asignar valores numéricos al género en el DataFrame filtrado
+    df_filtered['GENERO_NUMERICO'] = np.where(df_filtered['Sexo/Brecha de género'] == 'Mujeres', 0, 1)
+
     # Agrupar por 'Tipo de jornada' y 'Sexo/Brecha de género', y calcular el promedio de 'Total'
     promedio_total = df_filtered.groupby(['Tipo de jornada', 'Sexo/Brecha de género'])['Total'].mean().reset_index()
-
-    # Asignar valores numéricos al género
-    promedio_total['GENERO_NUMERICO'] = np.where(promedio_total['Sexo/Brecha de género'] == 'Mujeres', 0, 1)
 
     # Mostrar resultados de España
     st.markdown("<h1 style='text-align: center;'>Resultados de España:</h1>", unsafe_allow_html=True)
@@ -198,4 +195,4 @@ if 'Sexo/Brecha de género' in df_espana.columns and 'Tipo de jornada' in df_esp
     # Correlograma del DataFrame filtrado
     generar_correlograma_filtrado(df_filtered, 'Correlograma de Datos Filtrados por Género')
 else:
-    st.error("Las columnas 'Sexo/Brecha de género' o 'Tipo de jornada' no se encuentran en el DataFrame.")
+    st.error("Las columnas 'Sexo/Brecha de género' o 'Tipo de jornada' no están presentes en el DataFrame de España.")
