@@ -8,6 +8,9 @@ import os
 
 # Configuración y carga de datos
 def cargar_datos(file_path, delimiter=','):
+    """
+    Carga un archivo CSV en un DataFrame.
+    """
     return pd.read_csv(file_path, delimiter=delimiter)
 
 # Ruta del archivo (relativa)
@@ -141,9 +144,6 @@ if 'Sexo/Brecha de género' in df_espana.columns and 'Tipo de jornada' in df_esp
     # Asignar valores numéricos al género
     promedio_total['GENERO_NUMERICO'] = np.where(promedio_total['Sexo/Brecha de género'] == 'Mujeres', 0, 1)
 
-    # Verificar las columnas de promedio_total
-    st.write("Columnas en promedio_total:", promedio_total.columns.tolist())
-
     # Mostrar resultados de España
     st.markdown("<h1 style='text-align: center;'>Resultados de España:</h1>", unsafe_allow_html=True)
     st.header("Estadísticas de España:")
@@ -180,7 +180,15 @@ if 'Sexo/Brecha de género' in df_espana.columns and 'Tipo de jornada' in df_esp
     st.header("Correlograma España:")
 
     def generar_correlograma_filtrado(df, title):
-        correlation_matrix = df.corr()
+        # Verificar columnas disponibles
+        st.write("Columnas del DataFrame filtrado:", df.columns.tolist())
+        try:
+            df_selected = df[['Total', 'GENERO_NUMERICO']]
+        except KeyError as e:
+            st.error(f"Error: {str(e)}")
+            return
+
+        correlation_matrix = df_selected.corr()
         plt.figure(figsize=(8, 6))
         sns.heatmap(correlation_matrix, annot=True, cmap='coolwarm', vmin=-1, vmax=1)
         plt.title(title)
@@ -188,7 +196,6 @@ if 'Sexo/Brecha de género' in df_espana.columns and 'Tipo de jornada' in df_esp
         plt.clf()
 
     # Correlograma del DataFrame filtrado
-    st.write("Columnas del DataFrame filtrado:", df_filtered.columns.tolist())
-    generar_correlograma_filtrado(df_filtered[['Total', 'GENERO_NUMERICO']], 'Correlograma de Datos Filtrados por Género')
+    generar_correlograma_filtrado(df_filtered, 'Correlograma de Datos Filtrados por Género')
 else:
     st.error("Las columnas 'Sexo/Brecha de género' o 'Tipo de jornada' no se encuentran en el DataFrame.")
