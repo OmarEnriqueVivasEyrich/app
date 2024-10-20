@@ -29,11 +29,8 @@ nombres_femeninos = ['DANIELA', 'GLORIA', 'JULIETH', 'LILIANA', 'YINETH', 'YENNY
 # Aplicar la función para identificar género
 df_colombia['GENERO'] = df_colombia['NOMBRES Y APELLIDOS'].apply(lambda x: determinar_genero(x, nombres_femeninos))
 
-# Crear un DataFrame auxiliar para manejar los datos
-df_aux = df_colombia.copy()
-
-# Asignar valores numéricos al género en el DataFrame auxiliar
-df_aux['GENERO_NUMERICO'] = np.where(df_aux['GENERO'] == 'Femenino', 0, 1)
+# Asignar valores numéricos al género
+df_colombia['GENERO_NUMERICO'] = np.where(df_colombia['GENERO'] == 'Femenino', 0, 1)
 
 # Función para convertir escala salarial
 SMLV = 1_300_000
@@ -57,10 +54,10 @@ def convertir_smlv(escala, smlv=SMLV):
     return None
 
 # Aplicar la conversión de escala salarial
-df_aux['SALARIO_CALCULADO'] = df_aux['ESCALA SALARIAL SEGÚN LAS CATEGORÍAS PARRA SERVIDORES PÚBLICOS Y/O EMPREADOS DEL SECTOR PRIVADO.'].apply(lambda x: convertir_smlv(str(x)))
+df_colombia['SALARIO_CALCULADO'] = df_colombia['ESCALA SALARIAL SEGÚN LAS CATEGORÍAS PARRA SERVIDORES PÚBLICOS Y/O EMPREADOS DEL SECTOR PRIVADO.'].apply(lambda x: convertir_smlv(str(x)))
 
 # Renombrar columnas
-df_aux.rename(columns={
+df_colombia.rename(columns={
     'ESCALA SALARIAL SEGÚN LAS CATEGORÍAS PARRA SERVIDORES PÚBLICOS Y/O EMPREADOS DEL SECTOR PRIVADO.': 'ESCALA_SALARIO',
 }, inplace=True)
 
@@ -72,17 +69,17 @@ niveles_educacion = ['PRIMARIA', 'BACHILLER', 'MEDIA BOCACIONAL', 'TÉCNICO',
 educacion_dict = {nivel: valor for valor, nivel in enumerate(niveles_educacion, start=1)}
 
 # Crear una nueva columna con el valor numérico correspondiente al nivel de educación
-df_aux['NIVEL EDUCACION ORDENADO'] = df_aux['FORMACIÓN ACADEMICA'].map(educacion_dict)
+df_colombia['NIVEL EDUCACION ORDENADO'] = df_colombia['FORMACIÓN ACADEMICA'].map(educacion_dict)
 
 # Filtrar columnas importantes
-df_aux = df_aux[['NUMERO', 'NOMBRES Y APELLIDOS', 'GENERO', 'GENERO_NUMERICO', 'FORMACIÓN ACADEMICA', 'NIVEL EDUCACION ORDENADO', 'ESCALA_SALARIO', 'SALARIO_CALCULADO']]
+df_colombia = df_colombia[['NUMERO', 'NOMBRES Y APELLIDOS', 'GENERO', 'GENERO_NUMERICO', 'FORMACIÓN ACADEMICA', 'NIVEL EDUCACION ORDENADO', 'ESCALA_SALARIO', 'SALARIO_CALCULADO']]
 
 # Análisis y agrupación de datos
 def calcular_estadisticas_genero(df):
     return df.groupby('GENERO')['SALARIO_CALCULADO'].agg(promedio='mean').reset_index()
 
 # Calcular las estadísticas de salario por género
-estadisticas_genero = calcular_estadisticas_genero(df_aux)
+estadisticas_genero = calcular_estadisticas_genero(df_colombia)
 
 # Obtener los salarios promedio de hombres y mujeres
 salario_promedio_mujeres = estadisticas_genero[estadisticas_genero['GENERO'] == 'Femenino']['promedio'].values[0]
@@ -93,7 +90,7 @@ diferencia_salario = salario_promedio_hombres - salario_promedio_mujeres
 diferencia_porcentual = (diferencia_salario / salario_promedio_mujeres) * 100
 
 # Mostrar resultados de salario promedio
-st.markdown("<h1 style='text-align: center;'>Resultados de Colombia xd:</h1>", unsafe_allow_html=True)
+st.markdown("<h1 style='text-align: center;'>Resultados de Colombia:</h1>", unsafe_allow_html=True)
 st.header("Estadísticas de Colombia:")
 st.metric("Salario promedio de mujeres", f"{salario_promedio_mujeres:.2f}")
 st.metric("Salario promedio de hombres", f"{salario_promedio_hombres:.2f}")
@@ -119,7 +116,7 @@ def generar_correlograma(df, title):
     plt.clf()
 
 # Generar correlograma
-generar_correlograma(df_aux, 'Correlograma de Datos Completos')
+generar_correlograma(df_colombia, 'Correlograma de Datos Completos')
 
 # Cargar otro archivo CSV
 file_path_espana = os.path.join(os.getcwd(), 'datos.csv')
@@ -138,14 +135,11 @@ if 'Sexo/Brecha de género' in df_espana.columns and 'Tipo de jornada' in df_esp
     # Limpiar la columna 'Total', reemplazar comas por puntos y convertir a numérico
     df_filtered['Total'] = pd.to_numeric(df_filtered['Total'].str.replace(',', '.'), errors='coerce')
 
-    # Crear un DataFrame auxiliar para manejar los datos filtrados
-    df_aux_espana = df_filtered.copy()
-
-    # Asignar valores numéricos al género en el DataFrame auxiliar
-    df_aux_espana['GENERO_NUMERICO'] = np.where(df_aux_espana['Sexo/Brecha de género'] == 'Mujeres', 0, 1)
+    # Asignar valores numéricos al género en el DataFrame filtrado
+    df_filtered['GENERO_NUMERICO'] = np.where(df_filtered['Sexo/Brecha de género'] == 'Mujeres', 0, 1)
 
     # Agrupar por 'Tipo de jornada' y 'Sexo/Brecha de género', y calcular el promedio de 'Total'
-    promedio_total = df_aux_espana.groupby(['Tipo de jornada', 'Sexo/Brecha de género'])['Total'].mean().reset_index()
+    promedio_total = df_filtered.groupby(['Tipo de jornada', 'Sexo/Brecha de género'])['Total'].mean().reset_index()
 
     # Mostrar resultados de España
     st.markdown("<h1 style='text-align: center;'>Resultados de España:</h1>", unsafe_allow_html=True)
@@ -177,7 +171,7 @@ if 'Sexo/Brecha de género' in df_espana.columns and 'Tipo de jornada' in df_esp
     diferencias_salariales = calcular_diferencias_salariales(promedio_total)
 
     # Mostrar los resultados en una tabla
-    st.subheader("Diferencias Salariales por Tipo de Jornada xd")
+    st.subheader("Diferencias Salariales por Tipo de Jornada")
     st.dataframe(diferencias_salariales)
 
     st.header("Correlograma España:")
@@ -199,6 +193,6 @@ if 'Sexo/Brecha de género' in df_espana.columns and 'Tipo de jornada' in df_esp
         plt.clf()
 
     # Correlograma del DataFrame filtrado
-    generar_correlograma_filtrado(df_aux_espana, 'Correlograma de Datos Filtrados por Género')
+    generar_correlograma_filtrado(df_filtered, 'Correlograma de Datos Filtrados por Género')
 else:
     st.error("Las columnas 'Sexo/Brecha de género' o 'Tipo de jornada' no están presentes en el DataFrame de España.")
