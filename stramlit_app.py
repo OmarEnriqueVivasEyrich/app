@@ -93,7 +93,7 @@ diferencia_salario = salario_promedio_hombres - salario_promedio_mujeres
 diferencia_porcentual = (diferencia_salario / salario_promedio_mujeres) * 100
 
 # Mostrar resultados de salario promedio
-st.markdown("<h1 style='text-align: center;'>Resultados de Colombia:</h1>", unsafe_allow_html=True)
+st.markdown("<h1 style='text-align: center;'>Resultados de Colombia xd:</h1>", unsafe_allow_html=True)
 st.header("Estadísticas de Colombia:")
 st.metric("Salario promedio de mujeres", f"{salario_promedio_mujeres:.2f}")
 st.metric("Salario promedio de hombres", f"{salario_promedio_hombres:.2f}")
