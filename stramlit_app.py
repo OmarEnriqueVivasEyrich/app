@@ -8,9 +8,6 @@ import os
 
 # Configuración y carga de datos
 def cargar_datos(file_path, delimiter=','):
-    """
-    Carga un archivo CSV en un DataFrame.
-    """
     return pd.read_csv(file_path, delimiter=delimiter)
 
 # Ruta del archivo (relativa)
@@ -143,6 +140,9 @@ if 'Sexo/Brecha de género' in df_espana.columns and 'Tipo de jornada' in df_esp
 
     # Asignar valores numéricos al género
     promedio_total['GENERO_NUMERICO'] = np.where(promedio_total['Sexo/Brecha de género'] == 'Mujeres', 0, 1)
+
+    # Verificar las columnas de promedio_total
+    st.write("Columnas en promedio_total:", promedio_total.columns.tolist())
 
     # Mostrar resultados de España
     st.markdown("<h1 style='text-align: center;'>Resultados de España:</h1>", unsafe_allow_html=True)
