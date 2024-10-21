@@ -209,6 +209,6 @@ En cuanto a las posibles causas, los datos disponibles hasta el momento revelan 
 st.title("Solución Propuesta")
 
 st.write("""
-1. **Incentivar la Educación Continua**: Promover programas de educación continua y formación profesional dirigidos a mujeres para que puedan alcanzar niveles educativos equivalentes a los de sus pares masculinos.
+**Incentivar la Educación Continua**: Promover programas de educación continua y formación profesional dirigidos a mujeres para que puedan alcanzar niveles educativos equivalentes a los de sus pares masculinos.
 """)
 
