@@ -196,3 +196,13 @@ if 'Sexo/Brecha de género' in df_espana.columns and 'Tipo de jornada' in df_esp
     generar_correlograma_filtrado(df_filtered, 'Correlograma de Datos Filtrados por Género')
 else:
     st.error("Las columnas 'Sexo/Brecha de género' o 'Tipo de jornada' no están presentes en el DataFrame de España.")
+
+
+st.title("Conclusiones")
+
+st.write("""
+Se concluye que existe una brecha salarial significativa entre hombres y mujeres tanto en Colombia como en España, según lo evidenciado por las estadísticas presentadas. En particular, la brecha más pronunciada se observa en España, especialmente en el caso de jornadas laborales a tiempo completo.
+
+En cuanto a las posibles causas, los datos disponibles hasta el momento revelan una correlación notable entre el nivel educativo alcanzado por ambos géneros y los salarios que perciben.
+""")
+
